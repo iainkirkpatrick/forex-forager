@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/iainkirkpatrick/forex-forager",
   "dependencies": {
+    "d3": "^3.5.6",
     "virtual-dom": "^2.1.1"
   },
   "devDependencies": {
