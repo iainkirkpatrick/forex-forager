@@ -1,0 +1,3 @@
+#forex-forager
+
+some forexplorations
