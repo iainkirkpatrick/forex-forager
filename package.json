@@ -1,0 +1,35 @@
+{
+  "name": "forex-forager",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "budo index.js -d --serve bundle.js --live",
+    "build": "browserify index.js -o bundle.js -g uglifyify",
+    "test": "browserify test.js | tap-spec"
+  },
+  "browserify": {
+    "transform": []
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iainkirkpatrick/forex-forager.git"
+  },
+  "author": "iainkirkpatrick",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iainkirkpatrick/forex-forager/issues"
+  },
+  "homepage": "https://github.com/iainkirkpatrick/forex-forager",
+  "dependencies": {
+    "virtual-dom": "^2.1.1"
+  },
+  "devDependencies": {
+    "browserify": "^11.2.0",
+    "budo": "^5.1.1",
+    "tap-spec": "^4.1.0",
+    "tape": "^4.2.1",
+    "uglifyify": "^3.0.1",
+    "watchify": "^3.4.0"
+  }
+}
