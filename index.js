@@ -7,7 +7,7 @@ var dataFunc = require('./data');
 var lineGraph = require('./lineGraph');
 var d3 = require('d3');
 
-
+var dateParse = d3.time.format("%Y%m%d %H%M%S").parse;
 var el = document.body;
 var state = {
   data: [],
@@ -24,16 +24,20 @@ lineGraph.create(el, {
 );
 
 dataFunc(function(data) {
-  state.data = data;
+  state.data = data.map(function(d){
+    d[0] = dateParse(d[0]);
+    // console.log(d)
+    return d;
+  }),
   state.domain = {
     x: d3.extent(data.map(function (d) {
-        var dateParse = d3.time.format("%Y%m%d %H%M%S").parse;
-        //console.log(dateParse(d[0]));
-        //console.log(dateParse(d[0].split(' ')[0]));
-        return dateParse(d[0]);
+      //console.log(dateParse(d[0]));
+      //console.log(dateParse(d[0].split(' ')[0]));
+      //return dateParse(d[0]);
+      return d[0];
     })),
     y: d3.extent(data.map(function (d) {
-        return d[1];
+      return d[1];
     }))
   };
   console.log(state.domain);

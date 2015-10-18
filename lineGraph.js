@@ -85,8 +85,8 @@ line._drawLines = function(el, scales, data) {
   var height = el.offsetHeight - this.margin.top - this.margin.bottom;
 
   var generator = d3.svg.line()
-    .x(function (d) { return scales.x(d.date); })
-    .y(function (d) { return scales.y(d.total); });
+    .x(function (d) { return scales.x(d[0]); })
+    .y(function (d) { return scales.y(d[1]); });
 
   var g = d3.select(el).selectAll('.d3-lines');
   var line = g.selectAll('.d3-line')
