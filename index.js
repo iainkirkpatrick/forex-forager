@@ -24,23 +24,21 @@ lineGraph.create(el, {
 );
 
 dataFunc(function(data) {
-  state.data = data.map(function(d){
+  var dataDateParsed = data.map(function(d){
     d[0] = dateParse(d[0]);
-    // console.log(d)
     return d;
-  }),
+  });
+
+  state.data = dataDateParsed;
   state.domain = {
-    x: d3.extent(data.map(function (d) {
-      //console.log(dateParse(d[0]));
-      //console.log(dateParse(d[0].split(' ')[0]));
-      //return dateParse(d[0]);
+    x: d3.extent(dataDateParsed.map(function (d) {
       return d[0];
     })),
-    y: d3.extent(data.map(function (d) {
+    y: d3.extent(dataDateParsed.map(function (d) {
       return d[1];
     }))
   };
-  console.log(state.domain);
+  
   lineGraph.update(el, state);
 });
 /* virtual-dom stuff */
