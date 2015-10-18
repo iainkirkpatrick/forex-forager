@@ -51,8 +51,11 @@ line._scales = function(el, domain) {
   var width = el.offsetWidth - this.margin.left - this.margin.right;
   var height = el.offsetHeight - this.margin.top - this.margin.bottom;
 
-  var x = d3.scale.ordinal()
-    .rangeRoundBands([0, width], .5)
+  // var x = d3.scale.ordinal()
+  //   .rangeRoundBands([0, width], .5)
+  //   .domain(domain.x);
+  var x = d3.time.scale()
+    .range([0, width])
     .domain(domain.x);
 
   var y = d3.scale.linear()
@@ -82,7 +85,7 @@ line._drawLines = function(el, scales, data) {
   var height = el.offsetHeight - this.margin.top - this.margin.bottom;
 
   var generator = d3.svg.line()
-    .x(function (d) { return scales.x(d.date) + (scales.x.rangeBand() / 2); })
+    .x(function (d) { return scales.x(d.date); })
     .y(function (d) { return scales.y(d.total); });
 
   var g = d3.select(el).selectAll('.d3-lines');

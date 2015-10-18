@@ -3,21 +3,42 @@ var diff = require('virtual-dom/diff');
 var patch = require('virtual-dom/patch');
 var createElement = require('virtual-dom/create-element');
 
-var data = require('./data');
+var dataFunc = require('./data');
 var lineGraph = require('./lineGraph');
+var d3 = require('d3');
 
-lineGraph.create(document.body, {
+
+var el = document.body;
+var state = {
+  data: [],
+  domain: {
+    x: [0,1],
+    y: [0,1]
+  }
+};
+
+lineGraph.create(el, {
     width: '100%',
     height: '500px'
-  },
-  {
-    data: [],
-    domain: {
-      x: [0,1],
-      y: [0,1]
-    }
-  }
-)
+  }, state
+);
+
+dataFunc(function(data) {
+  state.data = data;
+  state.domain = {
+    x: d3.extent(data.map(function (d) {
+        var dateParse = d3.time.format("%Y%m%d %H%M%S").parse;
+        //console.log(dateParse(d[0]));
+        //console.log(dateParse(d[0].split(' ')[0]));
+        return dateParse(d[0]);
+    })),
+    y: d3.extent(data.map(function (d) {
+        return d[1];
+    }))
+  };
+  console.log(state.domain);
+  lineGraph.update(el, state);
+});
 /* virtual-dom stuff */
 // function render(count)  {
 //     return h('div', [String(count)]);
