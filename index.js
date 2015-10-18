@@ -6,8 +6,20 @@ var createElement = require('virtual-dom/create-element');
 var dataFunc = require('./data');
 var lineGraph = require('./lineGraph');
 var d3 = require('d3');
+var R = require('ramda');
 
 var dateParse = d3.time.format("%Y%m%d %H%M%S").parse;
+var dateFilter = R.curry(function(startDate, endDate, data) {
+  return data.filter(function(d){
+    //console.log(d[0], startDate, endDate)
+    return d[0] > startDate && d[0] < endDate;
+  });
+});
+// var dateFilter = R.filter(function(d) {
+//
+// })
+
+
 var el = document.body;
 var state = {
   data: [],
@@ -16,6 +28,7 @@ var state = {
     y: [0,1]
   }
 };
+var sep1 = dateFilter(dateParse("20150901 000000"), dateParse("20150901 235900"));
 
 lineGraph.create(el, {
     width: '100%',
@@ -29,16 +42,16 @@ dataFunc(function(data) {
     return d;
   });
 
-  state.data = dataDateParsed;
+  state.data = sep1(dataDateParsed);
   state.domain = {
-    x: d3.extent(dataDateParsed.map(function (d) {
+    x: d3.extent(sep1(dataDateParsed).map(function (d) {
       return d[0];
     })),
-    y: d3.extent(dataDateParsed.map(function (d) {
+    y: d3.extent(sep1(dataDateParsed).map(function (d) {
       return d[1];
     }))
   };
-  
+
   lineGraph.update(el, state);
 });
 /* virtual-dom stuff */
