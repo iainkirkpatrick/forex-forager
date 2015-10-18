@@ -12,7 +12,7 @@ var dateParse = d3.time.format("%Y%m%d %H%M%S").parse;
 var dateFilter = R.curry(function(startDate, endDate, data) {
   return data.filter(function(d){
     //console.log(d[0], startDate, endDate)
-    return d[0] > startDate && d[0] < endDate;
+    return d[0] >= startDate && d[0] <= endDate;
   });
 });
 // var dateFilter = R.filter(function(d) {
@@ -26,9 +26,9 @@ var state = {
   domain: {
     x: [0,1],
     y: [0,1]
-  }
+  },
+  lineColour: 'blue'
 };
-var sep1 = dateFilter(dateParse("20150901 000000"), dateParse("20150901 235900"));
 
 lineGraph.create(el, {
     width: '100%',
@@ -36,45 +36,53 @@ lineGraph.create(el, {
   }, state
 );
 
+/* virtual-dom stuff */
+function render(price)  {
+    return h('div', [String(price)]);
+};
+
+// function updateData(interval) {
+//
+// }
+
+// var price = 0;
+//
+// var tree = render(price);
+// var rootNode = createElement(tree);
+// document.body.appendChild(rootNode);
+
 dataFunc(function(data) {
+  //now data has loaded, setup time
+  var startDate = dateParse("20150901 000000");
+  var endDate = dateParse("20150901 000200");
+  var dateRange = dateFilter(startDate, endDate);
   var dataDateParsed = data.map(function(d){
     d[0] = dateParse(d[0]);
     return d;
   });
+  //
+  // setInterval(function () {
+  //   var newEndDate = d3.time.minute.offset(endDate, 1);
+  //   dateRange = dateFilter(startDate, newEndDate);
+  //   // price++;
+  //   //
+  //   // var newTree = render(price);
+  //   // var patches = diff(tree, newTree);
+  //   // rootNode = patch(rootNode, patches);
+  //   // tree = newTree;
 
-  state.data = sep1(dataDateParsed);
-  state.domain = {
-    x: d3.extent(sep1(dataDateParsed).map(function (d) {
-      return d[0];
-    })),
-    y: d3.extent(sep1(dataDateParsed).map(function (d) {
-      return d[1];
-    }))
-  };
+    state.data = dateRange(dataDateParsed);
+    state.domain = {
+      x: d3.extent(dateRange(dataDateParsed).map(function (d) {
+        return d[0];
+      })),
+      y: d3.extent(dateRange(dataDateParsed).map(function (d) {
+        return d[1];
+      }))
+    };
 
-  lineGraph.update(el, state);
+    console.log(state.data)
+
+    lineGraph.update(el, state);
+  // }, 1000);
 });
-/* virtual-dom stuff */
-// function render(count)  {
-//     return h('div', [String(count)]);
-// };
-//
-// function createLineGraph() {
-//   return
-// }
-//
-// var count = 0;
-//
-// var tree = render(count);
-// var rootNode = createElement(tree);
-// document.body.appendChild(rootNode);
-
-//updating
-// setInterval(function () {
-//       count++;
-//
-//       var newTree = render(count);
-//       var patches = diff(tree, newTree);
-//       rootNode = patch(rootNode, patches);
-//       tree = newTree;
-// }, 1000);

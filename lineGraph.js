@@ -31,7 +31,7 @@ line.update = function(el, state) {
   var axes = this._axes(scales);
 
   this._drawAxes(el, axes, state.data);
-  this._drawLines(el, scales, state.data);
+  this._drawLines(el, scales, state);
 
 };
 
@@ -81,7 +81,7 @@ line._axes = function(scales) {
     return {x: xAxis, y: yAxis};
 };
 
-line._drawLines = function(el, scales, data) {
+line._drawLines = function(el, scales, state) {
   var height = el.offsetHeight - this.margin.top - this.margin.bottom;
 
   var generator = d3.svg.line()
@@ -90,13 +90,13 @@ line._drawLines = function(el, scales, data) {
 
   var g = d3.select(el).selectAll('.d3-lines');
   var line = g.selectAll('.d3-line')
-    .data([data]);
+    .data([state.data]);
 
   // ENTER
   line.enter().append('path')
       .attr('class', 'd3-line')
       .attr("fill", "none")
-      .attr("stroke", "blue")
+      .attr("stroke", state.lineColour)
       .attr("stroke-width", "2px");
 
   // ENTER & UPDATE
