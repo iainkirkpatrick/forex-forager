@@ -38,7 +38,7 @@ lineGraph.create(el, {
 
 /* virtual-dom stuff */
 function render(price)  {
-    return h('div', [String(price)]);
+    return h('div', ["Latest Open Price: " + String(price)]);
 };
 
 // function updateData(interval) {
