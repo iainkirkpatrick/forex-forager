@@ -61,9 +61,9 @@ dataFunc(function(data) {
     return d;
   });
   //
-  // setInterval(function () {
-  //   var newEndDate = d3.time.minute.offset(endDate, 1);
-  //   dateRange = dateFilter(startDate, newEndDate);
+  setInterval(function () {
+    endDate = d3.time.minute.offset(endDate, 1);
+    dateRange = dateFilter(startDate, endDate);
   //   // price++;
   //   //
   //   // var newTree = render(price);
@@ -81,8 +81,8 @@ dataFunc(function(data) {
       }))
     };
 
-    console.log(state.data)
+    console.log(d3.time.minute.offset(endDate, 1))
 
     lineGraph.update(el, state);
-  // }, 1000);
+  }, 1000);
 });
