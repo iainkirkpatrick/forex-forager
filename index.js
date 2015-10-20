@@ -47,29 +47,34 @@ function render(price)  {
 
 // var price = 0;
 //
-// var tree = render(price);
-// var rootNode = createElement(tree);
-// document.body.appendChild(rootNode);
+
 
 dataFunc(function(data) {
   //now data has loaded, setup time
   var startDate = dateParse("20150901 000000");
-  var endDate = dateParse("20150901 000200");
+  var endDate = dateParse("20150901 000000");
   var dateRange = dateFilter(startDate, endDate);
   var dataDateParsed = data.map(function(d){
     d[0] = dateParse(d[0]);
     return d;
   });
-  //
+
+  var period = dateRange(dataDateParsed);
+  var latestOpenPrice = period[period.length - 1][1];
+  var tree = render(latestOpenPrice);
+  var rootNode = createElement(tree);
+  document.body.appendChild(rootNode);
+
   setInterval(function () {
     endDate = d3.time.minute.offset(endDate, 1);
     dateRange = dateFilter(startDate, endDate);
-  //   // price++;
-  //   //
-  //   // var newTree = render(price);
-  //   // var patches = diff(tree, newTree);
-  //   // rootNode = patch(rootNode, patches);
-  //   // tree = newTree;
+
+    period = dateRange(dataDateParsed);
+    latestOpenPrice = period[period.length - 1][1];
+    var newTree = render(latestOpenPrice);
+    var patches = diff(tree, newTree);
+    rootNode = patch(rootNode, patches);
+    tree = newTree;
 
     state.data = dateRange(dataDateParsed);
     state.domain = {
@@ -81,7 +86,7 @@ dataFunc(function(data) {
       }))
     };
 
-    console.log(d3.time.minute.offset(endDate, 1))
+    //console.log(d3.time.minute.offset(endDate, 1))
 
     lineGraph.update(el, state);
   }, 1000);
