@@ -1,0 +1,15 @@
+{
+  balance: 50000,
+  currentPrice: 1.2323,
+  position: 1.2323,
+  floor: 1.2373,
+  ceiling: 1.2273,
+  graph: {
+    data: [],
+    domain: {
+      x: [0,1],
+      y: [0,1]
+    },
+    lineColour: 'blue'
+  }
+}
