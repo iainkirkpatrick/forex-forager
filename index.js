@@ -1,9 +1,11 @@
+var vdom = require('virtual-dom');
 var h = require('virtual-dom/h');
 var diff = require('virtual-dom/diff');
 var patch = require('virtual-dom/patch');
 var createElement = require('virtual-dom/create-element');
 
-const atom = require('state-atom')
+var atom = require('state-atom');
+var vraf = require('virtual-raf');
 
 // var dataFunc = require('./data');
 // var lineGraph = require('./lineGraph');
@@ -64,13 +66,6 @@ var stateAtom = atom({
   }
 });
 
-// stateAtom(function(state) {
-//   //what do when state change?
-//   console.log(state.balance);
-// });
-//
-// stateAtom.balance.set(23);
-
 /* RENDER */
 //here be rendering logic: a single function that takes the state and returns our UI
 function render(state)  {
@@ -79,9 +74,18 @@ function render(state)  {
     ]);
 };
 
-var tree = render(stateAtom());
-var rootNode = createElement(tree);
-el.appendChild(rootNode);
+//need to understand virtual-raf better
+var tree = vraf(stateAtom(), render, vdom)
+stateAtom(function(state) {
+  //what do when state change?
+  tree.update(state);
+});
+
+// var tree = render(stateAtom());
+// var rootNode = createElement(tree);
+el.appendChild(tree());
+
+stateAtom.balance.set(23);
 
 
 // function displayPrices(positionPrice) {
