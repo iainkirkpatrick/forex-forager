@@ -64,15 +64,24 @@ var stateAtom = atom({
   }
 });
 
-stateAtom(function(state) {
-  //what do when state change?
-  console.log(state.balance);
-});
-
-stateAtom.balance.set(23);
+// stateAtom(function(state) {
+//   //what do when state change?
+//   console.log(state.balance);
+// });
+//
+// stateAtom.balance.set(23);
 
 /* RENDER */
 //here be rendering logic: a single function that takes the state and returns our UI
+function render(state)  {
+    return h('div', [
+      h('span', "Balance: " + String(state.balance))
+    ]);
+};
+
+var tree = render(stateAtom());
+var rootNode = createElement(tree);
+el.appendChild(rootNode);
 
 
 // function displayPrices(positionPrice) {
