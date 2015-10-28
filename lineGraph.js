@@ -26,8 +26,9 @@ line.create = function(el, props, state) {
 };
 
 line.update = function(el, state) {
+  console.log(state.domain().x)
   // Re-compute the scales, and render the data lines
-  var scales = this._scales(el, state.domain);
+  var scales = this._scales(el, state.domain());
   var axes = this._axes(scales);
 
   this._drawAxes(el, axes, state.data);
@@ -90,7 +91,7 @@ line._drawLines = function(el, scales, state) {
 
   var g = d3.select(el).selectAll('.d3-lines');
   var line = g.selectAll('.d3-line')
-    .data([state.data]);
+    .data([state.data()]);
 
   // ENTER
   line.enter().append('path')

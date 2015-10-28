@@ -70,6 +70,8 @@ dispatcher.on('nekMinit', function(data) {
     })))
   }));
 
+  lineGraph.update(el, store.graph);
+
   //console.log(store.graph.data());
 });
 
@@ -114,6 +116,13 @@ var tree = vraf(store(), render, vdom)
 // var tree = render(store());
 // var rootNode = createElement(tree);
 var el = document.body;
+
+lineGraph.create(el, {
+    width: '100%',
+    height: '500px'
+  }, store.graph
+);
+
 el.appendChild(tree());
 
 
