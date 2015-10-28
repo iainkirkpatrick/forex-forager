@@ -49,7 +49,7 @@ dispatcher.on('dataLoaded', function(data) {
 
   setInterval(function () {
     dispatcher('nekMinit', dataDateParsed);
-  }, 1000);
+  }, 50);
 });
 dispatcher.on('nekMinit', function(data) {
   store.endDate.set(d3.time.minute.offset(store.endDate(), 1));
@@ -58,7 +58,7 @@ dispatcher.on('nekMinit', function(data) {
   var latestOpenPrice = period[period.length - 1][1];
   store.currentPrice.set(latestOpenPrice);
 
-  console.log(store.currentPrice());
+  //console.log(store.currentPrice());
 });
 
 
@@ -91,7 +91,9 @@ store(function(state) {
 //here be rendering logic: a single function that takes the state and returns our UI
 function render(state)  {
     return h('div', [
-      h('span', "Balance: " + String(state.balance))
+      h('p', "Balance: " + String(state.balance)),
+      h('p', "Open Price: " + String(state.currentPrice)),
+      h('p', "Date: " + String(state.endDate))
     ]);
 };
 
