@@ -9,7 +9,7 @@ var barracks = require('barracks');
 var vraf = require('virtual-raf');
 
 // var dataFunc = require('./data');
-// var lineGraph = require('./lineGraph');
+var lineGraph = require('./lineGraph');
 var d3 = require('d3');
 var R = require('ramda');
 
@@ -18,7 +18,6 @@ var loadData = require('./data');
 var dateParse = d3.time.format("%Y%m%d %H%M%S").parse;
 var dateFilter = R.curry(function(startDate, endDate, data) {
   return data.filter(function(d){
-    //console.log(d[0], startDate, endDate)
     return d[0] >= startDate && d[0] <= endDate;
   });
 });
@@ -26,10 +25,12 @@ var dateFilter = R.curry(function(startDate, endDate, data) {
 /* INPUT */
 //here be a list of events
 var dispatcher = barracks();
+
 //listen for errors
 dispatcher.on('error', function(err) {
   console.log(err);
 });
+
 dispatcher.on('dataLoaded', function(data) {
   //update store with new data from new minute
   //call functions (pretty much like reducers, except individual reducers for this action)
@@ -49,8 +50,9 @@ dispatcher.on('dataLoaded', function(data) {
 
   setInterval(function () {
     dispatcher('nekMinit', dataDateParsed);
-  }, 50);
+  }, 1000);
 });
+
 dispatcher.on('nekMinit', function(data) {
   store.endDate.set(d3.time.minute.offset(store.endDate(), 1));
   var dateRange = dateFilter(store.startDate(), store.endDate());
@@ -58,7 +60,17 @@ dispatcher.on('nekMinit', function(data) {
   var latestOpenPrice = period[period.length - 1][1];
   store.currentPrice.set(latestOpenPrice);
 
-  //console.log(store.currentPrice());
+  store.graph.data.set(period);
+  store.graph.domain.set(atom.struct({
+    x: atom.array(d3.extent(period.map(function (d) {
+      return d[0];
+    }))),
+    y: atom.array(d3.extent(period.map(function (d) {
+      return d[1];
+    })))
+  }));
+
+  //console.log(store.graph.data());
 });
 
 
