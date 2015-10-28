@@ -5,12 +5,15 @@ var patch = require('virtual-dom/patch');
 var createElement = require('virtual-dom/create-element');
 
 var atom = require('state-atom');
+var barracks = require('barracks');
 var vraf = require('virtual-raf');
 
 // var dataFunc = require('./data');
 // var lineGraph = require('./lineGraph');
 var d3 = require('d3');
 var R = require('ramda');
+
+var loadData = require('./data');
 
 var dateParse = d3.time.format("%Y%m%d %H%M%S").parse;
 var dateFilter = R.curry(function(startDate, endDate, data) {
@@ -19,38 +22,51 @@ var dateFilter = R.curry(function(startDate, endDate, data) {
     return d[0] >= startDate && d[0] <= endDate;
   });
 });
-// var dateFilter = R.filter(function(d) {
-//
-// })
-
-//state
-// var state = require('./state');
-// console.log(state());
-
-
-var el = document.body;
-// var state = {
-//   data: [],
-//   domain: {
-//     x: [0,1],
-//     y: [0,1]
-//   },
-//   lineColour: 'blue'
-// };
-//
-// lineGraph.create(el, {
-//     width: '100%',
-//     height: '500px'
-//   }, state
-// );
 
 /* INPUT */
 //here be a list of events
+var dispatcher = barracks();
+//listen for errors
+dispatcher.on('error', function(err) {
+  console.log(err);
+});
+dispatcher.on('dataLoaded', function(data) {
+  //update store with new data from new minute
+  //call functions (pretty much like reducers, except individual reducers for this action)
+  var dataDateParsed = data.map(function(d){
+    d[0] = dateParse(d[0]);
+    return d;
+  });
+  store.startDate.set(dataDateParsed[0][0]);
+  store.endDate.set(dataDateParsed[0][0]);
+
+  var dateRange = dateFilter(store.startDate(), store.endDate());
+  var period = dateRange(dataDateParsed);
+  var latestOpenPrice = period[period.length - 1][1];
+  store.currentPrice.set(latestOpenPrice);
+  store.position.set(latestOpenPrice);
+  store.balance.set(50000);
+
+  setInterval(function () {
+    dispatcher('nekMinit', dataDateParsed);
+  }, 1000);
+});
+dispatcher.on('nekMinit', function(data) {
+  store.endDate.set(d3.time.minute.offset(store.endDate(), 1));
+  var dateRange = dateFilter(store.startDate(), store.endDate());
+  var period = dateRange(data);
+  var latestOpenPrice = period[period.length - 1][1];
+  store.currentPrice.set(latestOpenPrice);
+
+  console.log(store.currentPrice());
+});
 
 
 /* STATE */
 //here be state: a single state atom and logic to update it when events occur
-var stateAtom = atom({
+var store = atom({
+  startDate: atom.value(),
+  endDate: atom.value(),
   balance: atom.value(),
   currentPrice: atom.value(),
   position: atom.value(),
@@ -66,6 +82,11 @@ var stateAtom = atom({
   }
 });
 
+store(function(state) {
+  //what do when state change?
+  tree.update(state);
+});
+
 /* RENDER */
 //here be rendering logic: a single function that takes the state and returns our UI
 function render(state)  {
@@ -75,17 +96,18 @@ function render(state)  {
 };
 
 //need to understand virtual-raf better
-var tree = vraf(stateAtom(), render, vdom)
-stateAtom(function(state) {
-  //what do when state change?
-  tree.update(state);
-});
-
-// var tree = render(stateAtom());
+var tree = vraf(store(), render, vdom)
+// var tree = render(store());
 // var rootNode = createElement(tree);
+var el = document.body;
 el.appendChild(tree());
 
-stateAtom.balance.set(23);
+
+//something like document.ready should / could fire this initial loading?
+loadData(function(data) {
+  //data is loaded, dispatch action
+  dispatcher('dataLoaded', data);
+});
 
 
 // function displayPrices(positionPrice) {
