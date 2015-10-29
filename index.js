@@ -44,7 +44,9 @@ dispatcher.on('dataLoaded', function(data) {
   var dateRange = dateFilter(store.startDate(), store.endDate());
   var period = dateRange(dataDateParsed);
   var latestOpenPrice = period[period.length - 1][1];
-  store.currentPrice.set(latestOpenPrice);
+  var latestClosePrice = period[period.length - 1][4];
+  store.openPrice.set(latestOpenPrice);
+  store.closePrice.set(latestClosePrice);
   store.position.set(latestOpenPrice);
   store.balance.set(50000);
 
@@ -60,7 +62,9 @@ dispatcher.on('nekMinit', function(data) {
   var dateRange = dateFilter(store.startDate(), store.endDate());
   var period = dateRange(data);
   var latestOpenPrice = period[period.length - 1][1];
-  store.currentPrice.set(latestOpenPrice);
+  var latestClosePrice = period[period.length - 1][4];
+  store.openPrice.set(latestOpenPrice);
+  store.closePrice.set(latestClosePrice);
 
   store.graph.data.set(period);
   store.graph.domain.set(atom.struct({
@@ -72,11 +76,6 @@ dispatcher.on('nekMinit', function(data) {
       return +d[1];
     }))
   }));
-
-  console.log(d3.extent(period.map(function (d) {
-    //console.log(d[0])
-    return d[0];
-  })))
 
   lineGraph.update(el, store.graph);
 
@@ -90,7 +89,8 @@ var store = atom({
   startDate: atom.value(),
   endDate: atom.value(),
   balance: atom.value(),
-  currentPrice: atom.value(),
+  openPrice: atom.value(),
+  closePrice: atom.value(),
   position: atom.value(),
   floor: atom.value(),
   ceiling: atom.value(),
@@ -114,7 +114,8 @@ store(function(state) {
 function render(state)  {
     return h('div', [
       h('p', "Balance: " + String(state.balance)),
-      h('p', "Open Price: " + String(state.currentPrice)),
+      h('p', "Open Price: " + String(state.openPrice)),
+      h('p', "Close Price: " + String(state.closePrice)),
       h('p', "Date: " + String(state.endDate))
     ]);
 };
