@@ -48,6 +48,8 @@ dispatcher.on('dataLoaded', function(data) {
   store.position.set(latestOpenPrice);
   store.balance.set(50000);
 
+  //dispatcher('nekMinit', dataDateParsed);
+
   setInterval(function () {
     dispatcher('nekMinit', dataDateParsed);
   }, 1000);
@@ -62,13 +64,19 @@ dispatcher.on('nekMinit', function(data) {
 
   store.graph.data.set(period);
   store.graph.domain.set(atom.struct({
-    x: atom.array(d3.extent(period.map(function (d) {
-      return d[0];
-    }))),
-    y: atom.array(d3.extent(period.map(function (d) {
-      return d[1];
-    })))
+    x: d3.extent(period.map(function (d) {
+      //console.log(d[0])
+      return +d[0];
+    })),
+    y: d3.extent(period.map(function (d) {
+      return +d[1];
+    }))
   }));
+
+  console.log(d3.extent(period.map(function (d) {
+    //console.log(d[0])
+    return d[0];
+  })))
 
   lineGraph.update(el, store.graph);
 
@@ -116,10 +124,12 @@ var tree = vraf(store(), render, vdom)
 // var tree = render(store());
 // var rootNode = createElement(tree);
 var el = document.body;
+var graphDiv = document.createElement("div");
+var graphEl = el.appendChild(graphDiv);
 
-lineGraph.create(el, {
+lineGraph.create(graphEl, {
     width: '100%',
-    height: '500px'
+    height: '500'
   }, store.graph
 );
 

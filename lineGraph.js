@@ -3,7 +3,7 @@ var d3 = require('d3');
 var line = {};
 
 //refactor
-line.margin = { top: 30, right: 50, bottom: 30, left: 50 };
+line.margin = { top: 30, right: 50, bottom: 150, left: 100 };
     // width = el.offsetWidth - margin.left - margin.right,
     // height = el.offsetHeight - margin.top - margin.bottom;
 
@@ -22,16 +22,16 @@ line.create = function(el, props, state) {
       .attr('class', 'd3-axes')
       .attr("transform", "translate(" + this.margin.left + "," + this.margin.top + ")");
 
-  this.update(el, state);
+  this.update(el, state, props);
 };
 
 line.update = function(el, state) {
-  console.log(state.domain().x)
+
   // Re-compute the scales, and render the data lines
   var scales = this._scales(el, state.domain());
   var axes = this._axes(scales);
 
-  this._drawAxes(el, axes, state.data);
+  this._drawAxes(el, axes);
   this._drawLines(el, scales, state);
 
 };
@@ -42,6 +42,7 @@ line.destroy = function(el) {
 };
 
 line._scales = function(el, domain) {
+
   if (!domain) {
     domain = {
       x: ["01/09/2015", "02/09/2015"],
@@ -51,7 +52,6 @@ line._scales = function(el, domain) {
   }
   var width = el.offsetWidth - this.margin.left - this.margin.right;
   var height = el.offsetHeight - this.margin.top - this.margin.bottom;
-
   // var x = d3.scale.ordinal()
   //   .rangeRoundBands([0, width], .5)
   //   .domain(domain.x);
@@ -83,6 +83,7 @@ line._axes = function(scales) {
 };
 
 line._drawLines = function(el, scales, state) {
+
   var height = el.offsetHeight - this.margin.top - this.margin.bottom;
 
   var generator = d3.svg.line()
@@ -97,7 +98,7 @@ line._drawLines = function(el, scales, state) {
   line.enter().append('path')
       .attr('class', 'd3-line')
       .attr("fill", "none")
-      .attr("stroke", state.lineColour)
+      .attr("stroke", state.lineColour())
       .attr("stroke-width", "2px");
 
   // ENTER & UPDATE
@@ -114,7 +115,7 @@ line._drawLines = function(el, scales, state) {
     .remove();
 };
 
-line._drawAxes = function(el, axes, data) {
+line._drawAxes = function(el, axes) {
   var height = el.offsetHeight - this.margin.top - this.margin.bottom;
 
   var g = d3.select(el).selectAll('.d3-axes');
