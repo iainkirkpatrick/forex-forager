@@ -18,9 +18,13 @@ var loadData = require('./data');
 var dateParse = d3.time.format("%Y%m%d %H%M%S").parse;
 var dateFilter = R.curry(function(startDate, endDate, data) {
   return data.filter(function(d){
-    return d[0] >= startDate && d[0] <= endDate;
+    return d.date >= startDate && d.date <= endDate;
   });
 });
+
+function inverseRate(rate) {
+  return 1 / rate;
+}
 
 /* INPUT */
 //here be a list of events
@@ -35,22 +39,36 @@ dispatcher.on('dataLoaded', function(data) {
   //update store with new data from new minute
   //call functions (pretty much like reducers, except individual reducers for this action)
 
-  var dataDateParsed = data.map(function(d){
-    d.date = dateParse(d[0]);
-    return d;
-  });
-  //console.log(dataDateParsed);
+  //hacky as, adding properties to arrays :)
+  // var dataDateParsed = data.map(function(d){
+  //   d.date = dateParse(d[0]);
+  //   return d;
+  // });
+  var NZDEUR = data.map(function(d) {
+    d.open = inverseRate(+d[1]);
+    d.high = inverseRate(+d[2]);
+    d.low = inverseRate(+d[3]);
+    d.close = inverseRate(+d[4]);
+    return {
+      date: dateParse(d[0]),
+      open: inverseRate(+d[1]),
+      high: inverseRate(+d[2]),
+      low: inverseRate(+d[3]),
+      close: inverseRate(+d[4])
+    }
+  })
+  console.log(NZDEUR);
 
   var linesToRender = ['open', 'close'];
   var lines = linesToRender.map(function(type) {
     return {
       type: type,
-      values: dataDateParsed.map(function(d) {
+      values: NZDEUR.map(function(d) {
         var price;
         if (type === 'open') {
-          price = d[1]
+          price = d.open
         } else {
-          price = d[4]
+          price = d.close
         }
         return {date: d.date, price: price };
       })
@@ -62,7 +80,7 @@ dispatcher.on('dataLoaded', function(data) {
   //graph stuff
   store.graph.data.set(lines);
   store.graph.domain.set(atom.struct({
-    x: d3.extent(dataDateParsed, function(d) { return d.date; }),
+    x: d3.extent(NZDEUR, function(d) { return d.date; }),
     y: [
       d3.min(lines, function(c) { return d3.min(c.values, function(v) { return v.price; }); }),
       d3.max(lines, function(c) { return d3.max(c.values, function(v) { return v.price; }); })
@@ -78,22 +96,48 @@ dispatcher.on('dataLoaded', function(data) {
   );
   lineGraph.update(el, store.graph);
 
-  store.startDate.set(dataDateParsed[0][0]);
-  store.endDate.set(dataDateParsed[1][0]);
+  //quick checking of variation in month of data
+  var quickCheckState = {
+    last: null,
+    current: null,
+    ceiling: 0.0050,
+    floor: 0.0050,
+    upCount: 0,
+    downCount: 0
+  };
+  for (var i = 0; i < NZDEUR.length; i++) {
+    if (i === 0) {
+      quickCheckState.last = NZDEUR[i].open;
+    }
+    quickCheckState.current = NZDEUR[i].open;
+    if (quickCheckState.current >= (quickCheckState.last + quickCheckState.ceiling)) {
+      quickCheckState.upCount += 1;
+      quickCheckState.last = quickCheckState.current;
+    }
+    if (quickCheckState.current <= (quickCheckState.last - quickCheckState.floor)) {
+      quickCheckState.downCount += 1;
+      quickCheckState.last = quickCheckState.current;
+    }
+  };
+  console.log(quickCheckState);
 
-  var dateRange = dateFilter(store.startDate(), store.endDate());
-  var period = dateRange(dataDateParsed);
 
-  var latestOpenPrice = period[period.length - 1][1];
-  var latestClosePrice = period[period.length - 1][4];
-
-  store.openPrice.set(latestOpenPrice);
-  store.closePrice.set(latestClosePrice);
-  store.position.set(latestOpenPrice);
-  store.ceiling.set(+store.position() + 0.005)
-  store.floor.set(+store.position() - 0.005)
-
-  store.balance.set(50000);
+  // store.startDate.set(NZDEUR[0].date);
+  // store.endDate.set(NZDEUR[1].date);
+  //
+  // var dateRange = dateFilter(store.startDate(), store.endDate());
+  // var period = dateRange(NZDEUR);
+  //
+  // var latestOpenPrice = period[period.length - 1].open;
+  // var latestClosePrice = period[period.length - 1].close;
+  //
+  // store.openPrice.set(latestOpenPrice);
+  // store.closePrice.set(latestClosePrice);
+  // store.position.set(latestOpenPrice);
+  // store.ceiling.set(+store.position() + 0.005)
+  // store.floor.set(+store.position() - 0.005)
+  //
+  // store.balance.set(50000);
 
   //dispatcher('nekMinit', dataDateParsed);
 
@@ -109,8 +153,8 @@ dispatcher.on('nekMinit', function(data) {
   var period = dateRange(data);
 
   //get and set new state
-  var latestOpenPrice = period[period.length - 1][1];
-  var latestClosePrice = period[period.length - 1][4];
+  var latestOpenPrice = period[period.length - 1].open;
+  var latestClosePrice = period[period.length - 1].close;
   store.openPrice.set(latestOpenPrice);
   store.closePrice.set(latestClosePrice);
 
