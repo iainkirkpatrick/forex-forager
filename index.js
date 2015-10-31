@@ -14,6 +14,7 @@ var d3 = require('d3');
 var R = require('ramda');
 
 var loadData = require('./data');
+var ceilingFloorCount = require('./ceilingFloorCount');
 
 var dateParse = d3.time.format("%Y%m%d %H%M%S").parse;
 var dateFilter = R.curry(function(startDate, endDate, data) {
@@ -96,30 +97,8 @@ dispatcher.on('dataLoaded', function(data) {
   );
   lineGraph.update(el, store.graph);
 
-  //quick checking of variation in month of data
-  var quickCheckState = {
-    last: null,
-    current: null,
-    ceiling: 0.0050,
-    floor: 0.0050,
-    upCount: 0,
-    downCount: 0
-  };
-  for (var i = 0; i < NZDEUR.length; i++) {
-    if (i === 0) {
-      quickCheckState.last = NZDEUR[i].open;
-    }
-    quickCheckState.current = NZDEUR[i].open;
-    if (quickCheckState.current >= (quickCheckState.last + quickCheckState.ceiling)) {
-      quickCheckState.upCount += 1;
-      quickCheckState.last = quickCheckState.current;
-    }
-    if (quickCheckState.current <= (quickCheckState.last - quickCheckState.floor)) {
-      quickCheckState.downCount += 1;
-      quickCheckState.last = quickCheckState.current;
-    }
-  };
-  console.log(quickCheckState);
+  var fiftyPips = ceilingFloorCount(50, 50, NZDEUR);
+  console.log(fiftyPips);
 
 
   // store.startDate.set(NZDEUR[0].date);
