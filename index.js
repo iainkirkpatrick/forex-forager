@@ -45,9 +45,13 @@ dispatcher.on('dataLoaded', function(data) {
   var period = dateRange(dataDateParsed);
   var latestOpenPrice = period[period.length - 1][1];
   var latestClosePrice = period[period.length - 1][4];
+
   store.openPrice.set(latestOpenPrice);
   store.closePrice.set(latestClosePrice);
   store.position.set(latestOpenPrice);
+  store.ceiling.set(+store.position() + 0.005)
+  store.floor.set(+store.position() - 0.005)
+
   store.balance.set(50000);
 
   //dispatcher('nekMinit', dataDateParsed);
@@ -58,26 +62,40 @@ dispatcher.on('dataLoaded', function(data) {
 });
 
 dispatcher.on('nekMinit', function(data) {
+  //set the endDate to the next minute, and slice the data from start to new end
   store.endDate.set(d3.time.minute.offset(store.endDate(), 1));
   var dateRange = dateFilter(store.startDate(), store.endDate());
   var period = dateRange(data);
+
+  //get and set new state
   var latestOpenPrice = period[period.length - 1][1];
   var latestClosePrice = period[period.length - 1][4];
   store.openPrice.set(latestOpenPrice);
   store.closePrice.set(latestClosePrice);
 
-  store.graph.data.set(period);
-  store.graph.domain.set(atom.struct({
-    x: d3.extent(period.map(function (d) {
-      //console.log(d[0])
-      return +d[0];
-    })),
-    y: d3.extent(period.map(function (d) {
-      return +d[1];
-    }))
-  }));
+  //console.log(store.floor());
+  if (store.floor() >= store.closePrice()) {
+    //dispatch action to handle buy / sell
+    console.log('openprice met the floor');
+  } else if (store.ceiling() <= store.openPrice() ) {
+    //dispatch action to handle buy / sell
+    console.log('openprice met the ceiling');
+  }
 
-  lineGraph.update(el, store.graph);
+
+
+  //graph stuff
+  // store.graph.data.set(period);
+  // store.graph.domain.set(atom.struct({
+  //   x: d3.extent(period.map(function (d) {
+  //     //console.log(d[0])
+  //     return +d[0];
+  //   })),
+  //   y: d3.extent(period.map(function (d) {
+  //     return +d[1];
+  //   }))
+  // }));
+  //lineGraph.update(el, store.graph);
 
   //console.log(store.graph.data());
 });
@@ -92,6 +110,7 @@ var store = atom({
   openPrice: atom.value(),
   closePrice: atom.value(),
   position: atom.value(),
+  direction: atom.value(),
   floor: atom.value(),
   ceiling: atom.value(),
   graph: {
@@ -114,6 +133,9 @@ store(function(state) {
 function render(state)  {
     return h('div', [
       h('p', "Balance: " + String(state.balance)),
+      h('p', "Current Position: " + String(state.position)),
+      h('p', "Ceiling: " + String(state.ceiling)),
+      h('p', "Floor: " + String(state.floor)),
       h('p', "Open Price: " + String(state.openPrice)),
       h('p', "Close Price: " + String(state.closePrice)),
       h('p', "Date: " + String(state.endDate))
@@ -125,14 +147,16 @@ var tree = vraf(store(), render, vdom)
 // var tree = render(store());
 // var rootNode = createElement(tree);
 var el = document.body;
-var graphDiv = document.createElement("div");
-var graphEl = el.appendChild(graphDiv);
 
-lineGraph.create(graphEl, {
-    width: '100%',
-    height: '500'
-  }, store.graph
-);
+//graph init
+// var graphDiv = document.createElement("div");
+// var graphEl = el.appendChild(graphDiv);
+//
+// lineGraph.create(graphEl, {
+//     width: '100%',
+//     height: '500'
+//   }, store.graph
+// );
 
 el.appendChild(tree());
 

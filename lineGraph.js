@@ -3,7 +3,7 @@ var d3 = require('d3');
 var line = {};
 
 //refactor
-line.margin = { top: 30, right: 50, bottom: 150, left: 100 };
+line.margin = { top: 30, right: 50, bottom: 200, left: 100 };
     // width = el.offsetWidth - margin.left - margin.right,
     // height = el.offsetHeight - margin.top - margin.bottom;
 
