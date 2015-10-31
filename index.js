@@ -45,26 +45,39 @@ dispatcher.on('dataLoaded', function(data) {
   //   d.date = dateParse(d[0]);
   //   return d;
   // });
-  var NZDEUR = data.map(function(d) {
-    d.open = inverseRate(+d[1]);
-    d.high = inverseRate(+d[2]);
-    d.low = inverseRate(+d[3]);
-    d.close = inverseRate(+d[4]);
+  // var NZDEUR = data.map(function(d) {
+  //   d.open = inverseRate(+d[1]);
+  //   d.high = inverseRate(+d[2]);
+  //   d.low = inverseRate(+d[3]);
+  //   d.close = inverseRate(+d[4]);
+  //   return {
+  //     date: dateParse(d[0]),
+  //     open: inverseRate(+d[1]),
+  //     high: inverseRate(+d[2]),
+  //     low: inverseRate(+d[3]),
+  //     close: inverseRate(+d[4])
+  //   }
+  // });
+  var EURNZD = data.map(function(d) {
+    d.open = +d[1];
+    d.high = +d[2];
+    d.low = +d[3];
+    d.close = +d[4];
     return {
       date: dateParse(d[0]),
-      open: inverseRate(+d[1]),
-      high: inverseRate(+d[2]),
-      low: inverseRate(+d[3]),
-      close: inverseRate(+d[4])
+      open: +d[1],
+      high: +d[2],
+      low: +d[3],
+      close: +d[4]
     }
   })
-  console.log(NZDEUR);
+  console.log(EURNZD);
 
   var linesToRender = ['open', 'close'];
   var lines = linesToRender.map(function(type) {
     return {
       type: type,
-      values: NZDEUR.map(function(d) {
+      values: EURNZD.map(function(d) {
         var price;
         if (type === 'open') {
           price = d.open
@@ -81,7 +94,7 @@ dispatcher.on('dataLoaded', function(data) {
   //graph stuff
   store.graph.data.set(lines);
   store.graph.domain.set(atom.struct({
-    x: d3.extent(NZDEUR, function(d) { return d.date; }),
+    x: d3.extent(EURNZD, function(d) { return d.date; }),
     y: [
       d3.min(lines, function(c) { return d3.min(c.values, function(v) { return v.price; }); }),
       d3.max(lines, function(c) { return d3.max(c.values, function(v) { return v.price; }); })
@@ -103,7 +116,7 @@ dispatcher.on('dataLoaded', function(data) {
   */
   var ceiling = 20;
   var floor = 20;
-  var pipTest = ceilingFloorCount(ceiling, floor, NZDEUR);
+  var pipTest = ceilingFloorCount(ceiling, floor, EURNZD);
   console.log(pipTest);
 
 
