@@ -97,8 +97,14 @@ dispatcher.on('dataLoaded', function(data) {
   );
   lineGraph.update(el, store.graph);
 
-  var fiftyPips = ceilingFloorCount(20, 20, NZDEUR);
-  console.log(fiftyPips);
+  /*
+  Would be cool to have a function that could take in a series (or range) of pip values, and return back the value that generates the lowest recordStreak...
+  OR eventually the function returns back the value (or combo of ceiling / floor values) that returns the highest overall profit over the time period?
+  */
+  var ceiling = 20;
+  var floor = 20;
+  var pipTest = ceilingFloorCount(ceiling, floor, NZDEUR);
+  console.log(pipTest);
 
 
   // store.startDate.set(NZDEUR[0].date);

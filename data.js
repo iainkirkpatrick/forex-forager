@@ -7,6 +7,8 @@ var dsv = d3.dsv(";", "text/plain");
 
 function getData(callback) {
   d3.text("data/DAT_ASCII_EURNZD_M1_201509.csv", function(text) {
+  //d3.text("data/DAT_ASCII_EURNZD_M1_2014.csv", function(text) {
+  //d3.text("data/DAT_ASCII_EURNZD_T_201509.csv", function(text) {
     if (typeof callback=="function") callback(dsv.parseRows(text));
     // .reduce(function(prev, curr) {
     //
