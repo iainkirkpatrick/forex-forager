@@ -97,7 +97,7 @@ dispatcher.on('dataLoaded', function(data) {
   );
   lineGraph.update(el, store.graph);
 
-  var fiftyPips = ceilingFloorCount(50, 50, NZDEUR);
+  var fiftyPips = ceilingFloorCount(20, 20, NZDEUR);
   console.log(fiftyPips);
 
 
