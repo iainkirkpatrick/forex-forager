@@ -7,6 +7,9 @@ line.margin = { top: 30, right: 50, bottom: 200, left: 100 };
     // width = el.offsetWidth - margin.left - margin.right,
     // height = el.offsetHeight - margin.top - margin.bottom;
 
+line.color = d3.scale.category10();
+
+
 line.create = function(el, props, state) {
   //refactor svg creation out of specific graph creation? ala RNBZ work
   var svg = d3.select(el).append('svg')
@@ -83,22 +86,27 @@ line._axes = function(scales) {
 };
 
 line._drawLines = function(el, scales, state) {
+  console.log(state.data())
 
   var height = el.offsetHeight - this.margin.top - this.margin.bottom;
+  this.color.domain(state.data().map(function(d) {
+    return d.type;
+  }));
+  var color = this.color;
 
   var generator = d3.svg.line()
-    .x(function (d) { return scales.x(d[0]); })
-    .y(function (d) { return scales.y(d[1]); });
+    .x(function (d) { return scales.x(d.date); })
+    .y(function (d) { return scales.y(d.price); });
 
   var g = d3.select(el).selectAll('.d3-lines');
   var line = g.selectAll('.d3-line')
-    .data([state.data()]);
+    .data(state.data());
 
   // ENTER
   line.enter().append('path')
       .attr('class', 'd3-line')
       .attr("fill", "none")
-      .attr("stroke", state.lineColour())
+      .attr("stroke", function(d) { return color(d.type); })
       .attr("stroke-width", "2px");
 
   // ENTER & UPDATE
@@ -107,7 +115,8 @@ line._drawLines = function(el, scales, state) {
   })
   .transition()
   .attr("d", function (d) {
-      return generator(d);
+    console.log(d)
+      return generator(d.values);
   });
 
   // EXIT

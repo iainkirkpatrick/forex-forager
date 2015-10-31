@@ -34,30 +34,55 @@ dispatcher.on('error', function(err) {
 dispatcher.on('dataLoaded', function(data) {
   //update store with new data from new minute
   //call functions (pretty much like reducers, except individual reducers for this action)
-  var stackData
 
   var dataDateParsed = data.map(function(d){
-    d[0] = dateParse(d[0]);
+    d.date = dateParse(d[0]);
     return d;
   });
-  console.log(dataDateParsed);
+  //console.log(dataDateParsed);
+
+  var linesToRender = ['open', 'close'];
+  var lines = linesToRender.map(function(type) {
+    return {
+      type: type,
+      values: dataDateParsed.map(function(d) {
+        var price;
+        if (type === 'open') {
+          price = d[1]
+        } else {
+          price = d[4]
+        }
+        return {date: d.date, price: price };
+      })
+    };
+  });
+
+  console.log(lines);
+
+  //graph stuff
+  store.graph.data.set(lines);
+  store.graph.domain.set(atom.struct({
+    x: d3.extent(dataDateParsed, function(d) { return d.date; }),
+    y: [
+      d3.min(lines, function(c) { return d3.min(c.values, function(v) { return v.price; }); }),
+      d3.max(lines, function(c) { return d3.max(c.values, function(v) { return v.price; }); })
+    ]
+  }));
+
+  //console.log(store.graph.domain.x())
+
+  lineGraph.create(graphEl, {
+      width: '100%',
+      height: '500'
+    }, store.graph
+  );
+  lineGraph.update(el, store.graph);
 
   store.startDate.set(dataDateParsed[0][0]);
   store.endDate.set(dataDateParsed[1][0]);
 
   var dateRange = dateFilter(store.startDate(), store.endDate());
   var period = dateRange(dataDateParsed);
-
-
-  // permute the data (from http://stackoverflow.com/questions/13001657/d3js-stack-chart-with-simple-data)
-  // var stackData = period.map(function(d) {
-  //   return {x:d[0], y:d[3], y0:d[2]}
-  //     // return d.map(function(p, i) {
-  //     //   console.log(p, i)
-  //     //   return {x:i, y:p, y0:0};
-  //     // });
-  // });
-
 
   var latestOpenPrice = period[period.length - 1][1];
   var latestClosePrice = period[period.length - 1][4];
@@ -97,21 +122,6 @@ dispatcher.on('nekMinit', function(data) {
     //dispatch action to handle buy / sell
     console.log('openprice met the ceiling');
   }
-
-
-
-  //graph stuff
-  // store.graph.data.set(period);
-  // store.graph.domain.set(atom.struct({
-  //   x: d3.extent(period.map(function (d) {
-  //     //console.log(d[0])
-  //     return +d[0];
-  //   })),
-  //   y: d3.extent(period.map(function (d) {
-  //     return +d[1];
-  //   }))
-  // }));
-  //lineGraph.update(el, store.graph);
 
   //console.log(store.graph.data());
 });
@@ -165,16 +175,10 @@ var tree = vraf(store(), render, vdom)
 var el = document.body;
 
 //graph init
-// var graphDiv = document.createElement("div");
-// var graphEl = el.appendChild(graphDiv);
-//
-// lineGraph.create(graphEl, {
-//     width: '100%',
-//     height: '500'
-//   }, store.graph
-// );
+var graphDiv = document.createElement("div");
+var graphEl = el.appendChild(graphDiv);
 
-el.appendChild(tree());
+//el.appendChild(tree());
 
 
 //something like document.ready should / could fire this initial loading?
