@@ -34,15 +34,31 @@ dispatcher.on('error', function(err) {
 dispatcher.on('dataLoaded', function(data) {
   //update store with new data from new minute
   //call functions (pretty much like reducers, except individual reducers for this action)
+  var stackData
+
   var dataDateParsed = data.map(function(d){
     d[0] = dateParse(d[0]);
     return d;
   });
+  console.log(dataDateParsed);
+
   store.startDate.set(dataDateParsed[0][0]);
-  store.endDate.set(dataDateParsed[0][0]);
+  store.endDate.set(dataDateParsed[1][0]);
 
   var dateRange = dateFilter(store.startDate(), store.endDate());
   var period = dateRange(dataDateParsed);
+
+
+  // permute the data (from http://stackoverflow.com/questions/13001657/d3js-stack-chart-with-simple-data)
+  // var stackData = period.map(function(d) {
+  //   return {x:d[0], y:d[3], y0:d[2]}
+  //     // return d.map(function(p, i) {
+  //     //   console.log(p, i)
+  //     //   return {x:i, y:p, y0:0};
+  //     // });
+  // });
+
+
   var latestOpenPrice = period[period.length - 1][1];
   var latestClosePrice = period[period.length - 1][4];
 
@@ -56,9 +72,9 @@ dispatcher.on('dataLoaded', function(data) {
 
   //dispatcher('nekMinit', dataDateParsed);
 
-  setInterval(function () {
-    dispatcher('nekMinit', dataDateParsed);
-  }, 1000);
+  // setInterval(function () {
+  //   dispatcher('nekMinit', dataDateParsed);
+  // }, 1000);
 });
 
 dispatcher.on('nekMinit', function(data) {
