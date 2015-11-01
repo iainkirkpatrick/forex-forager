@@ -36,9 +36,10 @@ module.exports = function(ceilingPips, floorPips, data) {
     state.currentPrice = data[i].open;
 
     if (state.currentPrice >= (state.positionPrice + state.ceiling)) {
-      debugger;
+      //debugger;
       state.upCount += 1;
       if ('ceiling' !== state.priceMovement) {
+        //debugger;
         state.currentPriceStreak += 1;
         //buy enough to offset the current shorted position
         //for now, each turn we martingale by lots * currentPriceStreak
@@ -46,12 +47,11 @@ module.exports = function(ceilingPips, floorPips, data) {
         state.positionHoldings = (state.lots * (state.currentPriceStreak + 1)) * inverseRate(state.currentPrice);
         state.balance = state.balance - (state.lots * (state.currentPriceStreak + 1));
       } else {
+        //debugger;
         //this process is different for longing and shorting?
         //also need a process for martingaling too...
         //reset price streak
         state.currentPriceStreak = 0;
-
-        //debugger;
         //function ALL OF THIS
         //realise our position
         state.balance = state.balance + (state.positionHoldings * state.currentPrice);
@@ -63,24 +63,28 @@ module.exports = function(ceilingPips, floorPips, data) {
       state.positionPrice = state.currentPrice;
     }
     if (state.currentPrice <= (state.positionPrice - state.floor)) {
+      //debugger;
       state.downCount += 1;
       if ('floor' !== state.priceMovement) {
+        //debugger;
         state.currentPriceStreak += 1;
         //sell enough to offset the current longed position
         //for now, each turn we martingale by lots * currentPriceStreak
-        state.balance = state.balance - (state.positionHoldings * state.currentPrice);
-        state.positionHoldings = (state.lots * (state.currentPriceStreak + 1)) * inverseRate(state.currentPrice);
-        state.balance = state.balance - (state.lots * (state.currentPriceStreak + 1));
+        state.balance = state.balance + (state.positionHoldings * state.currentPrice);
+        state.positionHoldings = -((state.lots * (state.currentPriceStreak + 1)) * inverseRate(state.currentPrice));
+        state.balance = state.balance + (state.lots * (state.currentPriceStreak + 1));
       } else {
+        //debugger;
         //reset price streak
         state.currentPriceStreak = 0;
-        //debugger;
+
         //function ALL OF THIS
         //realise our position
-        state.balance = state.balance - (state.positionHoldings * state.currentPrice);
+        state.balance = state.balance + (state.positionHoldings * state.currentPrice);
         //open a new position (turn into function)
-        state.positionHoldings = (state.lots * (state.currentPriceStreak + 1)) * inverseRate(state.currentPrice);
-        state.balance = state.balance - (state.lots * (state.currentPriceStreak + 1));
+        //THIS POSITION IS SHORTING (two floors in a row will short a new position for now)
+        state.positionHoldings = -((state.lots * (state.currentPriceStreak + 1)) * inverseRate(state.currentPrice));
+        state.balance = state.balance + (state.lots * (state.currentPriceStreak + 1));
       };
       state.priceMovement = 'floor';
       state.positionPrice = state.currentPrice;
