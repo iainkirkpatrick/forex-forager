@@ -72,43 +72,43 @@ dispatcher.on('dataLoaded', function(data) {
     }
   })
   console.log(EURNZD);
-
-  var linesToRender = ['open', 'close'];
-  var lines = linesToRender.map(function(type) {
-    return {
-      type: type,
-      values: EURNZD.map(function(d) {
-        var price;
-        if (type === 'open') {
-          price = d.open
-        } else {
-          price = d.close
-        }
-        return {date: d.date, price: price };
-      })
-    };
-  });
-
-  console.log(lines);
-
-  //graph stuff
-  store.graph.data.set(lines);
-  store.graph.domain.set(atom.struct({
-    x: d3.extent(EURNZD, function(d) { return d.date; }),
-    y: [
-      d3.min(lines, function(c) { return d3.min(c.values, function(v) { return v.price; }); }),
-      d3.max(lines, function(c) { return d3.max(c.values, function(v) { return v.price; }); })
-    ]
-  }));
-
-  //console.log(store.graph.domain.x())
-
-  lineGraph.create(graphEl, {
-      width: '100%',
-      height: '500'
-    }, store.graph
-  );
-  lineGraph.update(el, store.graph);
+  // 
+  // var linesToRender = ['open', 'close'];
+  // var lines = linesToRender.map(function(type) {
+  //   return {
+  //     type: type,
+  //     values: EURNZD.map(function(d) {
+  //       var price;
+  //       if (type === 'open') {
+  //         price = d.open
+  //       } else {
+  //         price = d.close
+  //       }
+  //       return {date: d.date, price: price };
+  //     })
+  //   };
+  // });
+  //
+  // console.log(lines);
+  //
+  // //graph stuff
+  // store.graph.data.set(lines);
+  // store.graph.domain.set(atom.struct({
+  //   x: d3.extent(EURNZD, function(d) { return d.date; }),
+  //   y: [
+  //     d3.min(lines, function(c) { return d3.min(c.values, function(v) { return v.price; }); }),
+  //     d3.max(lines, function(c) { return d3.max(c.values, function(v) { return v.price; }); })
+  //   ]
+  // }));
+  //
+  // //console.log(store.graph.domain.x())
+  //
+  // lineGraph.create(graphEl, {
+  //     width: '100%',
+  //     height: '500'
+  //   }, store.graph
+  // );
+  // lineGraph.update(el, store.graph);
 
   /*
   Would be cool to have a function that could take in a series (or range) of pip values, and return back the value that generates the lowest recordStreak...
